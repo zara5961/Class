@@ -1,6 +1,6 @@
 // Initialize the map
 var map = L.map("map", {
-  center: [37.09, -95.71], // Center the map to the US
+  center: [37.09, -95.71],
   zoom: 5
 });
 
@@ -20,22 +20,21 @@ streetMap.addTo(map);
 var earthquakeLayer = L.layerGroup();
 var tectonicPlatesLayer = L.layerGroup();
 
+// Function to set marker color based on earthquake depth
+function getColor(depth) {
+  return depth > 90 ? "#ea2c2c" :
+         depth > 70 ? "#ea822c" :
+         depth > 50 ? "#ee9c00" :
+         depth > 30 ? "#eecc00" :
+         depth > 10 ? "#d4ee00" :
+                      "#98ee00";
+}
+
 // Fetch the earthquake GeoJSON data from the USGS
 var earthquakeUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 
 d3.json(earthquakeUrl).then(function(data) {
 
-  // Function to set marker color based on earthquake depth
-  function getColor(depth) {
-    return depth > 90 ? "#ea2c2c" :
-           depth > 70 ? "#ea822c" :
-           depth > 50 ? "#ee9c00" :
-           depth > 30 ? "#eecc00" :
-           depth > 10 ? "#d4ee00" :
-                        "#98ee00";
-  }
-
-  // Function to create circle markers
   function createMarkers(feature, latlng) {
     return L.circleMarker(latlng, {
       radius: feature.properties.mag * 4, // Set marker size based on magnitude
@@ -49,7 +48,7 @@ d3.json(earthquakeUrl).then(function(data) {
 
   // Add GeoJSON layer to the earthquakeLayer group
   L.geoJSON(data, {
-    pointToLayer: createMarkers, // Use createMarkers for each point
+    pointToLayer: createMarkers,
     onEachFeature: function(feature, layer) {
       layer.bindPopup(
         `<h3>Magnitude: ${feature.properties.mag}</h3>
@@ -63,26 +62,7 @@ d3.json(earthquakeUrl).then(function(data) {
   earthquakeLayer.addTo(map);
 });
 
-// Fetch the tectonic plates GeoJSON data from GitHub
-var tectonicPlatesUrl = "https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json";
-
-d3.json(tectonicPlatesUrl).then(function(data) {
-
-  // Add tectonic plates data to the tectonicPlatesLayer group
-  L.geoJSON(data, {
-    style: function() {
-      return {
-        color: "orange",
-        weight: 2
-      };
-    }
-  }).addTo(tectonicPlatesLayer);
-
-  // Add the tectonicPlatesLayer group to the map
-  tectonicPlatesLayer.addTo(map);
-});
-
-// Create a legend control object
+// Create the legend control object
 var legend = L.control({ position: "bottomright" });
 
 legend.onAdd = function(map) {
@@ -90,7 +70,7 @@ legend.onAdd = function(map) {
   var depths = [-10, 10, 30, 50, 70, 90];
   var labels = [];
 
-  // Loop through the intervals of depth and generate a label with a colored square for each interval
+  // Loop through depth intervals and create colored labels
   for (var i = 0; i < depths.length; i++) {
     div.innerHTML +=
       "<i style='background: " + getColor(depths[i] + 1) + "'></i> " +
